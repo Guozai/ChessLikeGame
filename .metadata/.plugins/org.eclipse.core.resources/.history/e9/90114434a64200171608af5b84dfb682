@@ -1,0 +1,54 @@
+package logic;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import logic.board.Board;
+import logic.pieces.Colour;
+import logic.pieces.Piece;
+
+public class Undo {
+	
+	public final int UNDOLIMIT = 2 ;
+	public static ArrayList<Undo> undos ;
+
+	public Colour colour ;
+	public int from ;
+	public int to ;
+	
+	public Undo(Colour colour, int from, int to)
+	{
+		this.colour = colour ;
+		this.from = from;
+		this.to = to ;
+	}
+	
+	public void save(Colour colour, int from, int to)
+	{
+		undos.add(new Undo(colour, from,to));
+		while(undos.size() > UNDOLIMIT)
+		{
+			undos.remove(0);
+		}
+	}
+	
+	public static void undo(Board board)
+	{
+		if(undos.size() > 0)
+		{
+			if(undos.get(0).colour == Colour.WHITE)
+			{
+				pieces = board.getWhiteP() ;
+			}
+			else
+			{
+				pieces = board.getWhiteP() ;
+			}
+			
+		}
+		else
+		{
+			System.out.println("No saves moves.");
+		}
+	}
+}

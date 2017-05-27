@@ -1,0 +1,99 @@
+package logic.pieces;
+
+import static org.junit.Assert.*;
+import java.util.Collection;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import com.chess.engine.board.*;
+
+public class BishopTest {
+
+	Bishop bishop; // declare bishop object
+	Board board;
+	Collection<Move> moves; // ''
+
+//	 0 1 2 3 4 5
+//	|x|x|x|x|x|x|
+//	| | | | | | |
+//	| | | | | | |
+//	| | | | | | |
+//	| | | | | | |
+//	|o|o|o|o|o|o|
+//   303132333435	
+	
+	@Before
+	public void setUp() throws Exception {
+		board = Board.initialChessBoard();
+	}
+
+	
+	
+	@Test
+	public void test13() {
+		bishop = new Bishop(13,Colour.BLACK); // initialize bishop object
+//		 0 1 2 3 4 5
+//		|x|x|x|x|x|x|
+//		|v| |v| | | |
+//		| |B| | | | |
+//		|v| |v| | | |
+//		| | | |v| | |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = bishop.calcLegalMoves(board); // fill moves collection with valid moves
+		assertEquals(5,moves.size());  			// make sure moves collection has the correct number of moves
+		System.out.println("Passed test13");
+	}
+	
+	@Test
+	public void test0() {
+		bishop = new Bishop(0,Colour.BLACK);
+//		 0 1 2 3 4 5
+//		|B|x|x|x|x|x|
+//		| |v| | | | |
+//		| | |v| | | |
+//		| | | | | | |
+//		| | | | | | |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = bishop.calcLegalMoves(board);
+		assertEquals(2,moves.size());
+		System.out.println("Passed test0");
+	}
+	
+	@Test
+	public void test6() {
+		bishop = new Bishop(6,Colour.BLACK);
+//		 0 1 2 3 4 5
+//		|x|x|x|x|x|x|
+//		|B| | | | | |
+//		| |v| | | | |
+//		| | |v| | | |
+//		| | | | | | |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = bishop.calcLegalMoves(board);
+		assertEquals(2,moves.size());
+		System.out.println("Passed test6");
+	}
+	
+	@Test
+	public void test14() {
+		bishop = new Bishop(14,Colour.BLACK);
+//		 0 1 2 3 4 5
+//		|x|x|x|x|x|x|
+//		| |v| |v| | |
+//		| | |B| | | |
+//		| |v| |v| | |
+//		|v| | | |v| |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = bishop.calcLegalMoves(board);
+		assertEquals(6,moves.size());
+		System.out.println("Passed test14");
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+	}
+}

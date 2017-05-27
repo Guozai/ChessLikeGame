@@ -1,0 +1,392 @@
+/*
+ * Created by Yiping Guo
+ * Refer to https://github.com/AlmasB/FXTutorials/blob/master/src/com/almasb/checkers/
+ */
+package gui;
+
+import java.util.Collection;
+
+import com.chess.engine.board.Board;
+import com.chess.engine.board.Move;
+import com.chess.engine.pieces.Bishop;
+import com.chess.engine.pieces.Colour;
+import com.chess.engine.pieces.Knight;
+import com.chess.engine.pieces.Rook;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+/**
+ *
+ * @author Gogogo
+ */
+public class ChessLikeGame extends Application {
+    
+    public static final int TILE_SIZE = 100;
+    public static final int WIDTH = 6; // The board has 6 columns. 
+    public static final int HEIGHT = 6; // And 5 rows.
+    
+    private final Tile[][] board = new Tile[WIDTH][HEIGHT];
+
+    private final Group tileGroup = new Group();
+    private final Group pieceGroup = new Group();
+    
+    private Parent createContent() {
+        BorderPane chess = new BorderPane();
+        
+        HBox top = new HBox(50);
+        top.setAlignment(Pos.CENTER);
+        
+        Text txtPlayer2 = new Text("Player 2");
+        txtPlayer2.setFont(Font.font(STYLESHEET_MODENA, FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 35));
+        LinearGradient fontGradient = new LinearGradient(
+        			.5,
+        			0,
+        			.5,
+        			1,
+        			true,
+        			CycleMethod.NO_CYCLE,
+        			new Stop(0, Color.SKYBLUE),
+        			new Stop(1, Color.SILVER)
+        			);
+        txtPlayer2.setFill(fontGradient);
+        top.getChildren().add(txtPlayer2);
+        
+        HBox bottom = new HBox(50);
+        bottom.setAlignment(Pos.CENTER);
+        Text txtPlayer1 = new Text("Player 1");
+        txtPlayer1.setFont(Font.font(STYLESHEET_MODENA, FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 35));
+        txtPlayer1.setFill(fontGradient);
+        bottom.getChildren().add(txtPlayer1);
+        
+        // Right Area
+        VBox right = new VBox(5);
+        right.setSpacing(130);
+        right.setAlignment(Pos.CENTER_RIGHT);
+        right.setPadding(new Insets(100));
+        
+        HBox hboxSteps = new HBox(5);
+        
+        Label labelDescripSteps = new Label("Step Count: ");
+        labelDescripSteps.setFont(Font.font("Cambria", 30));
+        Label labelSteps = new Label("0");
+        labelSteps.setFont(Font.font("Cambria", 30));
+        labelSteps.setText("" + count);
+        hboxSteps.getChildren().addAll(labelDescripSteps, labelSteps);
+        
+        Piece a = new Piece(PieceType.WROOK, 3, 3);
+        Button btnUndo = new Button("Undo");
+        btnUndo.setOnAction(e -> {
+        	a.move(4, 4);
+        });
+        
+        VBox vboxScore = new VBox(5);
+        vboxScore.setAlignment(Pos.CENTER);
+        
+        Label labelPlayers = new Label("Player 1 VS. Player 2");
+        labelPlayers.setFont(Font.font("Arial", 35));
+        labelPlayers.setAlignment(Pos.CENTER);
+        Label labelScore = new Label("0 : 0");
+        labelScore.setFont(Font.font("Arial", 35));
+        labelScore.setAlignment(Pos.CENTER);
+        vboxScore.getChildren().addAll(labelPlayers, labelScore);
+        
+        right.getChildren().addAll(hboxSteps, btnUndo, vboxScore);
+        
+        Pane center = new Pane();
+        center.setPrefSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
+        center.getChildren().addAll(tileGroup, pieceGroup);
+        
+        // Create chess board
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                Tile tile = new Tile((x + y) % 2 == 0, x, y);
+                board[x][y] = tile;
+                
+                tileGroup.getChildren().add(tile);
+            }
+        }
+        
+        // Add chess pieces
+        Piece bRook1 = makePiece(PieceType.BROOK, 0, 0);
+        Piece bBishop1 = makePiece(PieceType.BBISHOP, 1, 0);
+        Piece bKnight1 = makePiece(PieceType.BKNIGHT, 2, 0);
+        Piece bKnight2 = makePiece(PieceType.BKNIGHT, 3, 0);
+        Piece bBishop2 = makePiece(PieceType.BBISHOP, 4, 0);
+        Piece bRook2 = makePiece(PieceType.BROOK, 5, 0);
+        pieceGroup.getChildren().addAll(bRook1, bBishop1, bKnight1, bKnight2, bBishop2, bRook2);
+        Piece wRook1 = makePiece(PieceType.WROOK, 0, 5);
+        Piece wBishop1 = makePiece(PieceType.WBISHOP, 1, 5);
+        Piece wKnight1 = makePiece(PieceType.WKNIGHT, 2, 5);
+        Piece wKnight2 = makePiece(PieceType.WKNIGHT, 3, 5);
+        Piece wBishop2 = makePiece(PieceType.WBISHOP, 4, 5);
+        Piece wRook2 = makePiece(PieceType.WROOK, 5, 5);
+        pieceGroup.getChildren().addAll(wRook1, wBishop1, wKnight1, wKnight2, wBishop2, wRook2);
+        
+        chess.setTop(top);
+        chess.setBottom(bottom);
+        chess.setRight(right);
+        chess.setCenter(center);
+     
+        return chess;
+    }
+    
+    private int toBoard(double pixel) {
+        return (int)(pixel + TILE_SIZE /2) / TILE_SIZE;
+    }
+    
+    Stage window;
+    Scene loginScene, createScene, setStepScene, gameScene; 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+    	window = primaryStage;
+    	
+    	 GridPane grid = new GridPane();
+         grid.setAlignment(Pos.CENTER);
+         grid.setHgap(10);
+         grid.setVgap(1);
+         grid.setPadding(new Insets(25, 25, 25, 25));
+
+         Button btnCreate = new Button("Create Account");
+         btnCreate.setOnAction(e -> window.setScene(createScene)
+        	 //window.setTitle("Create User Account");
+         );
+         Button Signbtn = new Button("Sign in");
+         HBox hbBtn = new HBox(10);
+         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+         hbBtn.getChildren().addAll(btnCreate, Signbtn);
+         grid.add(btnCreate, 1, 4);
+         grid.add(hbBtn, 1, 4);
+
+         final Text actiontarget = new Text();
+         grid.add(actiontarget, 0, 6, 2, 1);
+
+         final Text actiontargetup = new Text();
+         grid.add(actiontargetup, 0, 12, 2, 1);
+
+         final Text actiontargetp1 = new Text();
+         grid.add(actiontargetp1, 0, 13, 2, 1);
+
+         final Text actiontargetp2 = new Text();
+         grid.add(actiontargetp2, 0, 14, 2, 1);
+
+         final Text actiontargetmax = new Text();
+         grid.add(actiontargetmax, 0, 20, 2, 1);
+
+         Text scenetitle = new Text("Welcome to Chess, Please Login");
+         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+         grid.add(scenetitle, 0, 0, 2, 1);
+
+         Label userName = new Label("User Name:");
+         grid.add(userName, 0, 1);
+
+         TextField userTextField = new TextField();
+         grid.add(userTextField, 1, 1);
+
+         Label pw = new Label("Password:");
+         grid.add(pw, 0, 2);
+
+         PasswordField pwBox = new PasswordField();
+         grid.add(pwBox, 1, 2);
+         
+         grid.setGridLinesVisible(false);
+         loginScene = new Scene(grid, 350, 250);
+    	
+         //////////////////////////////////////////////////////////////////
+         
+         GridPane create = new GridPane();
+         
+         Label userNameup = new Label("User Name:");
+         create.add(userNameup, 0, 8);
+
+         TextField userTextFieldup = new TextField();
+         create.add(userTextFieldup, 1, 8);
+
+         Label pwup = new Label("Password:");
+         create.add(pwup, 0, 9);
+
+         PasswordField pwBoxup = new PasswordField();
+         create.add(pwBoxup, 1, 9);
+
+         Button Upbtn = new Button("Sign Up");
+         HBox hbBtn2 = new HBox(10);
+         hbBtn2.setAlignment(Pos.BOTTOM_RIGHT);
+         hbBtn2.getChildren().add(Upbtn);
+         create.add(hbBtn2, 1, 11);
+         
+         create.setGridLinesVisible(false);
+         createScene = new Scene(create, 350, 250);
+    	
+    	gameScene = new Scene(createContent());
+        
+    	//window.setTitle("Chess Like Game");
+    	window.setTitle("Chess Login");
+    	window.setScene(gameScene);
+        window.show();
+    }
+
+    private Board logicBoard = Board.initialChessBoard();
+    private Rook rook;
+    private Knight knight;
+    private Bishop bishop;
+	private Collection<Move> moves;
+	// x0 y0 is used to update the original position 
+	// of a piece at the beginning of each round
+	int x0, y0;
+	int count = 0;
+    /* Move the chess piece */
+    private Piece makePiece (PieceType type, int x, int y) {
+        Piece piece = new Piece(type, x, y);
+        
+        piece.setOnMousePressed(e -> {
+        	
+        	x0 = toBoard(piece.getOldX());
+            y0 = toBoard(piece.getOldY());
+        	
+        	if (piece.getType() == PieceType.BROOK) {
+        		// Use y*6 + x to convert x,y into a valid input for logic chess piece classes
+        		rook = new Rook(y0*6 + x0, Colour.BLACK);
+        		moves = rook.calcLegalMoves(logicBoard);
+        		for (int i = 0; i < moves.size(); i++) {
+        			Move move = (Move)moves.toArray()[i];
+        			// Convert the output from one dimension to two dimensions
+        			highlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
+        		}
+        	} else if (piece.getType() == PieceType.WROOK) {
+        		rook = new Rook(y0*6 + x0, Colour.WHITE);
+        		moves = rook.calcLegalMoves(logicBoard);
+        		for (int i = 0; i < moves.size(); i++) {
+        			Move move = (Move)moves.toArray()[i];
+        			
+        			highlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
+        		}
+        	} else if (piece.getType() == PieceType.BKNIGHT) {
+        		knight = new Knight(y0*6 + x0, Colour.BLACK);
+        		moves = knight.calcLegalMoves(logicBoard);
+        		for (int i = 0; i < moves.size(); i++) {
+        			Move move = (Move)moves.toArray()[i];
+        			highlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
+        		}
+        	} else if (piece.getType() == PieceType.WKNIGHT) {
+        		knight = new Knight(y0*6 + x0, Colour.WHITE);
+        		moves = knight.calcLegalMoves(logicBoard);
+        		for (int i = 0; i < moves.size(); i++) {
+        			Move move = (Move)moves.toArray()[i];
+        			highlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
+        		}
+        	} else if (piece.getType() == PieceType.BBISHOP) {
+        		bishop = new Bishop(y0*6 + x0, Colour.BLACK);
+        		moves = bishop.calcLegalMoves(logicBoard);
+        		for (int i = 0; i < moves.size(); i++) {
+        			Move move = (Move)moves.toArray()[i];
+        			highlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
+        		}
+        	} else if (piece.getType() == PieceType.WBISHOP) {
+        		bishop = new Bishop(y0*6 + x0, Colour.WHITE);
+        		moves = bishop.calcLegalMoves(logicBoard);
+        		for (int i = 0; i < moves.size(); i++) {
+        			Move move = (Move)moves.toArray()[i];
+        			highlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
+        		}
+        	}
+        });
+        
+        piece.setOnMouseDragged(e -> {
+            piece.relocate(e.getSceneX() - TILE_SIZE/2, e.getSceneY() - TILE_SIZE/2);
+        });
+        
+        piece.setOnMouseReleased(e -> {
+        	int newX = toBoard(piece.getLayoutX());
+            int newY = toBoard(piece.getLayoutY());
+            boolean isMovable = false;
+            
+            if (logicBoard.getNextMoveColour() == false && (piece.getType() == PieceType.BROOK ||
+            		piece.getType() == PieceType.BKNIGHT || piece.getType() == PieceType.BBISHOP)) {
+            	isMovable = true;
+            } else if (logicBoard.getNextMoveColour() == true && (piece.getType() == PieceType.WROOK ||
+            		piece.getType() == PieceType.WKNIGHT || piece.getType() == PieceType.WBISHOP)) {
+            	isMovable = true;
+            }
+            
+    		for (int i = 0; i < moves.size(); i++) {
+    			Move move = (Move)moves.toArray()[i];
+    			stopHighlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
+    			
+    			if(isMovable == true && newX == move.getDestCoordinate()%6 && newY == (int)Math.floor(move.getDestCoordinate()/6)) {
+    				isMovable = true;
+    			}
+    		}
+    		
+            if (isMovable == false) {
+                piece.abortMove();
+            } else if (isMovable == true) {
+            	if (newX == x0 && newY == y0) {
+            		piece.abortMove();
+            	} else if (board[newX][newY].hasPiece() == true) {
+            		pieceGroup.getChildren().remove(board[newX][newY].getPiece());
+            		logicBoard = logicBoard.remove(newY*6 + newX);
+            		board[newX][newY].setPiece(null);
+            	}
+                piece.move(newX, newY);
+                board[x0][y0].setPiece(null);
+                board[newX][newY].setPiece(piece);
+                logicBoard = logicBoard.update(piece.getType(), newY*6 + newX, y0*6 + x0);
+                /* Save the new position of x, y */
+                x0 = newX;
+                y0 = newY;
+                count++;
+            }
+        });
+        
+        return piece;
+    }
+    
+    /* Highlighting the tiles */
+    private void highlightTile(int x, int y) {
+        if (board[x][y].getFill().equals(Color.BLACK)) {
+            board[x][y].setPreviousTileColor(true);
+        } else {
+            board[x][y].setPreviousTileColor(false);
+        }
+        board[x][y].setFill(Color.YELLOW);
+    }
+    
+    private void stopHighlightTile(int x, int y) {
+        if (board[x][y].getPreviousTileColor() == true) {
+            board[x][y].setFill(Color.BLACK);
+        } else {
+            board[x][y].setFill(Color.WHITE);
+        }
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+    
+}

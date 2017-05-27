@@ -1,0 +1,81 @@
+package logic.pieces;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import logic.board.Board;
+import logic.board.BoardUtil;
+import logic.board.Move;
+import logic.board.Move.NormalMove;
+import logic.pieces.Piece.PieceName;
+import logic.board.Move.Attack;
+import logic.board.Tile;
+
+public class Knight extends Piece {
+	// the coordinates which the knight can move to in the tile
+	final int[] KNIGHT_VALIDMOVE_LOC = { -13, -11, -8, -4, 4, 8, 11, 13 }; 
+	public Knight(final int piecePos, final Colour pieceColour) {
+		super(piecePos, pieceColour);
+
+	}
+
+	@Override
+	public Collection<Move> calcLegalMoves(final Board board) {
+		// TODO Auto-generated method stub
+		final List<Move> legalMoves = new ArrayList<>();
+		int destinationLocation;
+		for (final int chosenLocation : KNIGHT_VALIDMOVE_LOC) { // chosenLocation is the location the player has chosen to move into
+			// the current position + the new position that has been chosen =
+			// the destination location
+			destinationLocation = this.piecePos + chosenLocation;
+			if (BoardUtil.isValidTileCoordinate(destinationLocation)) {
+				if (isFirstColExcl(this.piecePos, chosenLocation)
+						|| isSecondColExcl(this.piecePos, chosenLocation)
+						|| isFifthColExcl(this.piecePos, chosenLocation)
+						|| isSixthColExcl(this.piecePos, chosenLocation)) {
+					continue; // to skip though these invalid movements
+				}
+
+				final Tile chosenDestinationTile = board.getTile(destinationLocation);
+				// check to see if the tile is already occupied
+				if (!chosenDestinationTile.isTileFull()) {
+					legalMoves.add(new NormalMove(board, this, destinationLocation));
+				} else {
+					final Piece pieceAtDestination = chosenDestinationTile.getPiece();
+					final Colour pieceColour = pieceAtDestination.getPieceColour();
+					if (this.pieceColour != pieceColour) {
+						legalMoves.add(new Attack(board, this, destinationLocation, pieceAtDestination));
+					}
+				}
+			}
+		}
+
+		return Collections.unmodifiableList(legalMoves);
+	}
+
+	// if the knight is in the first column, re check its invalid moves
+	private static boolean isFirstColExcl(final int currentPos, final int offSetPos) {
+		return BoardUtil.FIRST_COL(currentPos) && ((offSetPos == -8) || (offSetPos == -13) || (offSetPos == 4)
+				|| (offSetPos == 11));
+	}
+
+	private static boolean isSecondColExcl(final int currentPos, final int offSetPos) {
+		return BoardUtil.SECOND_COL(currentPos) && ((offSetPos == 4) || (offSetPos == -8));
+	}
+
+	private static boolean isFifthColExcl(final int currentPos, final int offSetPos) {
+		return BoardUtil.FIFTH_COL(currentPos) && ((offSetPos == -4) || (offSetPos == 8));
+	}
+
+	private static boolean isSixthColExcl(final int currentPos, final int offSetPos) {
+		return BoardUtil.SIXTH_COL(currentPos) && ((offSetPos == 8) || (offSetPos == 13) || (offSetPos == -4)
+				|| (offSetPos == -11));
+	}
+	
+	@Override
+	public String toString(){
+		return PieceName.KNIGHT.toString();
+	}
+}

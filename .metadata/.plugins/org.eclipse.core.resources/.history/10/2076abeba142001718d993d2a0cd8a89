@@ -1,0 +1,133 @@
+package logic.pieces;
+
+import static org.junit.Assert.*;
+
+import java.util.Collection;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.chess.engine.board.Board;
+import com.chess.engine.board.Move;
+
+public class RookTest {
+	
+	Rook rook;
+	Board board;
+	Collection<Move> moves;
+
+//	 0 1 2 3 4 5
+//	|x|x|x|x|x|x|
+//	| | | | | | |
+//	| | | | | | |
+//	| | | | | | |
+//	| | | | | | |
+//	|o|o|o|o|o|o|
+//   303132333435	
+
+
+	@Before
+	public void setUp() throws Exception {
+		board = Board.initialChessBoard();
+	}
+	
+	@Test
+	public void test13() {
+		rook = new Rook(13,Colour.BLACK);
+//		 0 1 2 3 4 5
+//		|x|x|x|x|x|x|
+//		| |v| | | | |
+//		|v|R|v|v| | |
+//		| |v| | | | |
+//		| |v| | | | |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = rook.calcLegalMoves(board);
+		
+		if(moves.size() > 0)
+		{
+			//System.out.println("yessss");
+			Move move0 = (Move)moves.toArray()[0] ;
+			//System.out.println(move0.getDestCoordinate());
+
+		}
+		assertEquals(6,moves.size());
+		System.out.println("Passed test13");
+	}
+	
+	/*
+	@Before
+	public void setUp0() throws Exception {
+		rook = new Rook(0,Colour.BLACK);
+	}
+	*/
+	
+	@Test
+	public void test0() {
+		rook = new Rook(0,Colour.BLACK); //65752243
+//		 0 1 2 3 4 5
+//		|R|x|x|x|x|x|
+//		|v| | | | | |
+//		|v| | | | | |
+//		| | | | | | |
+//		| | | | | | |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = rook.calcLegalMoves(board);
+		assertEquals(2,moves.size());
+		System.out.println("Passed test0");
+		
+		for (int i = 0; i < 2; i++) {
+			Move move = (Move)moves.toArray()[i];
+			System.out.println(move.getDestCoordinate());
+		}
+	}
+	
+	/*
+	@Before
+	public void setUp6() throws Exception {
+		rook = new Rook(6,Colour.BLACK);
+	}
+	*/
+	
+	@Test
+	public void test6() {
+		rook = new Rook(6,Colour.BLACK); //{-1, -2, -6, -12, 1, 2, 6, 12}
+//		 0 1 2 3 4 5
+//		|x|x|x|x|x|x|
+//		|R|v|v| | | |
+//		|v| | | | | |
+//		|v| | | | | |
+//		| | | | | | |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = rook.calcLegalMoves(board);
+		assertEquals(4,moves.size());
+		System.out.println("Passed test6");
+	}
+	
+	@Test
+	public void test14() {
+		rook = new Rook(14,Colour.BLACK);
+//		 0 1 2 3 4 5
+//		|x|x|x|x|x|x|
+//		| | |v| | | |
+//		|v|v|R|v|v| |
+//		| | |v| | | |
+//		| | |v| | | |
+//		|o|o|o|o|o|o|
+//       303132333435
+		moves = rook.calcLegalMoves(board);
+		assertEquals(7,moves.size());
+		System.out.println("Passed test14");
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		// delete stuff
+	}
+
+	
+
+}

@@ -1,0 +1,203 @@
+package logic.board;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.chess.engine.pieces.Bishop;
+import com.chess.engine.pieces.Colour;
+import com.chess.engine.pieces.Knight;
+import com.chess.engine.pieces.Piece;
+import com.chess.engine.pieces.Rook;
+import com.google.common.collect.ImmutableList;
+
+import chesslikegame.PieceType;
+
+public class Board {
+
+	private List<Tile> chessBoard;
+	private Collection<Piece> whiteP;
+	private Collection<Piece> blackP;
+
+	
+	public Collection<Piece> getWhiteP()
+	{
+		return whiteP;
+	}
+	
+	public Collection<Piece> getBlackP()
+	{
+		return blackP;
+	}
+	
+	
+	private Board(Builder builder) {
+		this.chessBoard = makeChessBoard(builder);
+		this.whiteP = calcActiveP(this.chessBoard, Colour.WHITE);  // calculating the active pieces
+		this.blackP = calcActiveP(this.chessBoard, Colour.BLACK);
+		
+		final Collection<Move> whiteLegalMoves = calcLegalMoves(this.whiteP);
+		final Collection<Move> blackLegalMoves = calcLegalMoves(this.blackP);
+	}
+	
+	
+	// we track the number of our active pieces
+	private Collection<Piece> calcActiveP(List<Tile> chessBoard, Colour colour) {
+		final List<Piece> activeP = new ArrayList<>();
+		for (Tile tile : chessBoard) {
+			if (tile.isTileFull()) {
+				// if the piece colour on the tile is the same colour as we
+				// passed in then add to the active pieces
+				Piece piece = tile.getPiece();
+				if (piece.getPieceColour() == colour) {
+					activeP.add(piece);
+				}
+			}
+		}
+
+		return ImmutableList.copyOf(activeP);
+	}
+	
+	
+	public Tile getTile(int chosenDestination) {
+		return chessBoard.get(chosenDestination);
+	}
+
+	private List<Tile> makeChessBoard(Builder builder) {
+		// create a new array with the length of the board
+		final Tile[] tiles = new Tile[BoardUtil.NUM_TILES];
+		// goes through each tile in the board
+		for (int x = 0; x < BoardUtil.NUM_TILES; x++) {
+			// Associates each tile location with a piece
+			tiles[x] = Tile.createTile(x, builder.boardLayout.get(x));
+		}
+		return ImmutableList.copyOf(tiles); // contains its own private data and
+											// will never change.
+	}
+	
+	final static Builder builder = new Builder();
+	
+	public static Board initialChessBoard() {
+		// black pieces
+		builder.setPiece(new Rook(0, Colour.BLACK));
+		builder.setPiece(new Bishop(1, Colour.BLACK));
+		builder.setPiece(new Knight(2, Colour.BLACK));
+		builder.setPiece(new Knight(3, Colour.BLACK));
+		builder.setPiece(new Bishop(4, Colour.BLACK));
+		builder.setPiece(new Rook(5, Colour.BLACK));
+		// white pieces
+		builder.setPiece(new Rook(30, Colour.WHITE));
+		builder.setPiece(new Bishop(31, Colour.WHITE));
+		builder.setPiece(new Knight(32, Colour.WHITE));
+		builder.setPiece(new Knight(33, Colour.WHITE));
+		builder.setPiece(new Bishop(34, Colour.WHITE));
+		builder.setPiece(new Rook(35, Colour.WHITE));
+		// white can move
+		builder.setNextMoveTransfer(Colour.WHITE);
+		return builder.build();
+	}
+	
+	public Board update(PieceType type, int positionNew, int positionOld) {
+		if (type == PieceType.BROOK) {
+			builder.setPiece(new Rook(positionNew, Colour.BLACK));
+			builder.removePiece(new Rook(positionOld, Colour.BLACK));
+			builder.setNextMoveTransfer(Colour.WHITE);
+		} else if (type == PieceType.BKNIGHT) {
+			builder.setPiece(new Knight(positionNew, Colour.BLACK));
+			builder.removePiece(new Knight(positionOld, Colour.BLACK));
+			builder.setNextMoveTransfer(Colour.WHITE);
+		} else if (type == PieceType.BBISHOP) {
+			builder.setPiece(new Bishop(positionNew, Colour.BLACK));
+			builder.removePiece(new Bishop(positionOld, Colour.BLACK));
+			builder.setNextMoveTransfer(Colour.WHITE);
+		} else if (type == PieceType.WROOK) {
+			builder.setPiece(new Rook(positionNew, Colour.WHITE));
+			builder.removePiece(new Rook(positionOld, Colour.WHITE));
+			builder.setNextMoveTransfer(Colour.BLACK);
+		} else if (type == PieceType.WKNIGHT) {
+			builder.setPiece(new Knight(positionNew, Colour.WHITE));
+			builder.removePiece(new Knight(positionOld, Colour.WHITE));
+			builder.setNextMoveTransfer(Colour.BLACK);
+		} else if (type == PieceType.WBISHOP) {
+			builder.setPiece(new Bishop(positionNew, Colour.WHITE));
+			builder.removePiece(new Bishop(positionOld, Colour.WHITE));
+			builder.setNextMoveTransfer(Colour.BLACK);
+		}
+		return builder.build();
+	}
+	
+	public Board remove(int positionOld) {
+		builder.boardLayout.put(positionOld, null);
+		return builder.build();
+	}
+	
+	private Collection<Move> calcLegalMoves(Collection<Piece> pieces) {
+		// TODO Auto-generated method stub
+		final Collection<Move> legalMoves = new ArrayList<>();
+		// brings all the legal moves of the pieces into the legalMoves container in board
+		for(final Piece piece:pieces){ 
+		legalMoves.addAll(piece.calcLegalMoves(this));
+		}
+		return ImmutableList.copyOf(legalMoves);
+	}	
+	
+	public boolean getNextMoveColour() {
+		if (builder.nextMoveTransfer == Colour.BLACK) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	@Override
+	public String toString(){ // to create the board in the console using the string format
+		final StringBuilder builder = new StringBuilder();
+		for(int x = 0 ; x < BoardUtil.NUM_TILES; x++){ // goes through all the tiles
+			String tileChar = this.chessBoard.get(x).toString(); // calls the toString method from Tile
+			builder.append(String.format("%3s", tileChar)); //adds to the builder with this format - 3 strings
+			if((x + 1) % 6 == 0){ // after each 6th tile, create a new row
+				builder.append("\n");
+			}
+		}
+		return builder.toString();
+	}
+	
+
+
+	public static class Builder {
+		// in our board we map a tile ID to a Piece
+		Map<Integer, Piece> boardLayout;
+		Colour nextMoveTransfer; // to keep track of whose turn it is next
+
+		
+		
+		public Builder() {
+			this.boardLayout = new HashMap<>();
+		}
+
+		// each time we need to reset some properties of the current builder:
+
+		// gets the tile ID and position it in the given piece
+		public Builder setPiece(final Piece piece) {
+			this.boardLayout.put(piece.getPiecePos(), piece);
+			return this;
+		}
+
+		public Builder removePiece(final Piece piece) {
+			this.boardLayout.put(piece.getPiecePos(), null);
+			return this;
+		}
+		
+		public Builder setNextMoveTransfer(Colour nextMoveTransfer) {
+			this.nextMoveTransfer = nextMoveTransfer;
+			return this;
+		}
+		
+		public Board build() {
+			return new Board(this);
+		}
+	}
+
+}

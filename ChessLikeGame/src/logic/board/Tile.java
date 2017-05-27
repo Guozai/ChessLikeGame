@@ -1,0 +1,87 @@
+package logic.board;
+
+import java.util.HashMap;
+import java.util.Map;
+import logic.pieces.Piece;
+import com.google.common.collect.ImmutableMap;
+
+public abstract class Tile {
+	protected final int tileLocation;
+
+	private Tile(final int tileLocation) {
+		this.tileLocation = tileLocation;
+	}
+
+	private static Map<Integer, EmptyT> makeAllEmptyTilesPossible() {
+		// TODO Auto-generated method stub
+		final Map<Integer, EmptyT> emptyTMap = new HashMap<>();
+		for (int x = 0; x < BoardUtil.NUM_TILES; x++) {
+			emptyTMap.put(x, new EmptyT(x));
+		}
+		// The compiler makes a copy of the tiles (which is always going to be
+		// there)
+		return ImmutableMap.copyOf(emptyTMap);
+	}
+
+	private static final Map<Integer, EmptyT> EMPTY_TILES_CACHE = makeAllEmptyTilesPossible();
+
+	public static Tile createTile(final int tileLocation, final Piece piece) {
+		// if the tile is not empty, create an occupied tile, if it is empty
+		// then make it a part of empty tile cache
+		return piece != null ? new FullTile(tileLocation, piece) : EMPTY_TILES_CACHE.get(tileLocation);
+	}
+
+	public abstract boolean isTileFull();
+
+	public abstract Piece getPiece();
+
+	public static final class EmptyT extends Tile { // for all the empty
+													// tiles on the board
+		private EmptyT(final int coordinate) {
+			super(coordinate);
+		}
+
+		@Override
+		public boolean isTileFull() {
+			return false;
+		}
+
+		@Override
+		public Piece getPiece() {
+			return null;
+		}
+		
+		@Override
+		public String toString(){
+			return "-";
+		}
+	}
+
+	public static final class FullTile extends Tile { // for all the
+														// occupied tiles on
+														// the board
+		private final Piece pieceOnTile;
+
+		private FullTile(int tileLocation, final Piece pieceOnTile) {
+			super(tileLocation);
+			this.pieceOnTile = pieceOnTile;
+
+		}
+
+		@Override
+		public Piece getPiece() {
+			return this.pieceOnTile;
+		}
+
+		@Override
+		public boolean isTileFull() {
+			return true;
+		}
+		
+		@Override
+		public String toString(){ // black pieces will show in lower case and white pieces will show in upper case
+			return getPiece().toString();
+		}
+
+	}
+}
