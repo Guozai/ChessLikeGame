@@ -240,8 +240,7 @@ public class ChessLikeGame extends Application {
     	
     	gameScene = new Scene(createContent());
         
-    	//window.setTitle("Chess Like Game");
-    	window.setTitle("Chess Login");
+    	window.setTitle("Chess Like Game");
     	window.setScene(gameScene);
         window.show();
     }

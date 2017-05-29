@@ -14,6 +14,10 @@ import logic.board.Move.NormalMove;
 
 public class Rook extends Piece {
 	final int[] ROOK_VALIDMOVE_LOC = {-1, -2, -6, -12, 1, 2, 6, 12};
+	static final int PIECE_IN_UP_TILE_IN_THE_WAY = -6;
+	static final int PIECE_IN_LEFT_TILE_IN_THE_WAY = -1;
+	static final int PIECE_IN_DOWN_TILE_IN_THE_WAY = 6;
+	static final int PIECE_IN_RIGHT_TILE_IN_THE_WAY = 1;
 
 	public Rook(int piecePos, Colour pieceColour) {
 		super(piecePos, pieceColour);
@@ -40,8 +44,34 @@ public class Rook extends Piece {
 				final Tile chosenDestinationTile = board.getTile(destinationLocation);
 				// check to see if the tile is already occupied
 				if (!chosenDestinationTile.isTileFull()) {
-					//if the tile is empty, move normally
-					legalMoves.add(new NormalMove(board, this, destinationLocation));
+					// if it is not the game start initialization
+					if (destinationLocation != piecePos) {
+						// if there is a place on the path between the destination and the original position
+						if (destinationLocation - piecePos == 2 * PIECE_IN_UP_TILE_IN_THE_WAY) {
+							// if there is a piece on the way
+							final Tile checkTile = board.getTile(piecePos + PIECE_IN_UP_TILE_IN_THE_WAY);
+							if (!checkTile.isTileFull()) {
+								legalMoves.add(new NormalMove(board, this, destinationLocation));
+							}
+						} else if (destinationLocation - piecePos == 2 * PIECE_IN_LEFT_TILE_IN_THE_WAY) {
+							final Tile checkTile = board.getTile(piecePos + PIECE_IN_LEFT_TILE_IN_THE_WAY);
+							if (!checkTile.isTileFull()) {
+								legalMoves.add(new NormalMove(board, this, destinationLocation));
+							}
+						} else if (destinationLocation - piecePos == 2 * PIECE_IN_DOWN_TILE_IN_THE_WAY) {
+							final Tile checkTile = board.getTile(piecePos + PIECE_IN_DOWN_TILE_IN_THE_WAY);
+							if (!checkTile.isTileFull()) {
+								legalMoves.add(new NormalMove(board, this, destinationLocation));
+							}
+						} else if (destinationLocation - piecePos == 2 * PIECE_IN_RIGHT_TILE_IN_THE_WAY) {
+							final Tile checkTile = board.getTile(piecePos + PIECE_IN_RIGHT_TILE_IN_THE_WAY);
+							if (!checkTile.isTileFull()) {
+								legalMoves.add(new NormalMove(board, this, destinationLocation));
+							}
+						} else {
+							legalMoves.add(new NormalMove(board, this, destinationLocation));
+						}
+					}
 				} else {
 					final Piece pieceAtDestination = chosenDestinationTile.getPiece();
 					final Colour pieceColour = pieceAtDestination.getPieceColour();
