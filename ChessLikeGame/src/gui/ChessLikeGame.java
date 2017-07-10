@@ -312,28 +312,27 @@ public class ChessLikeGame extends Application {
         });
         
         piece.setOnMouseDragged(e -> {
-            piece.relocate(e.getSceneX() - TILE_SIZE/2, e.getSceneY() - TILE_SIZE/2);
+        	piece.relocate(e.getSceneX() - TILE_SIZE/2, e.getSceneY() - TILE_SIZE);
         });
         
         piece.setOnMouseReleased(e -> {
         	int newX = toBoard(piece.getLayoutX());
             int newY = toBoard(piece.getLayoutY());
             boolean isMovable = false;
-            
-            if (logicBoard.getNextMoveColour() == false && (piece.getType() == PieceType.BROOK ||
-            		piece.getType() == PieceType.BKNIGHT || piece.getType() == PieceType.BBISHOP)) {
-            	isMovable = true;
-            } else if (logicBoard.getNextMoveColour() == true && (piece.getType() == PieceType.WROOK ||
-            		piece.getType() == PieceType.WKNIGHT || piece.getType() == PieceType.WBISHOP)) {
-            	isMovable = true;
-            }
+            boolean hasMoved = false;
             
     		for (int i = 0; i < moves.size(); i++) {
     			Move move = (Move)moves.toArray()[i];
     			stopHighlightTile(move.getDestCoordinate()%6, (int)Math.floor(move.getDestCoordinate()/6));
     			
-    			if(isMovable == true && newX == move.getDestCoordinate()%6 && newY == (int)Math.floor(move.getDestCoordinate()/6)) {
-    				isMovable = true;
+    			if(newX == move.getDestCoordinate()%6 && newY == (int)Math.floor(move.getDestCoordinate()/6)) {
+    	    		if (logicBoard.getNextMoveColour() == false && (piece.getType() == PieceType.BROOK ||
+    	                	piece.getType() == PieceType.BKNIGHT || piece.getType() == PieceType.BBISHOP)) {
+    					isMovable = true;
+    				} else if (logicBoard.getNextMoveColour() == true && (piece.getType() == PieceType.WROOK ||
+    	            		piece.getType() == PieceType.WKNIGHT || piece.getType() == PieceType.WBISHOP)) {
+    					isMovable = true;
+    				}
     			}
     		}
     		
